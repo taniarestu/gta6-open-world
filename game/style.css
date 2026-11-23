@@ -1,0 +1,74 @@
+/* Solmar Bay: Sunset Heat — dark neon HUD over a warm sunset world. */
+:root {
+  --pink: #ff5e8a; --orange: #ff9a56; --gold: #ffc46b; --teal: #2ec4b6;
+  --ink: #0d0f16; --panel: rgba(10, 12, 22, 0.72); --line: rgba(255, 255, 255, 0.14);
+  --text: #f4f1ea; --muted: #b9b3a8;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; overflow: hidden; background: #1a0f1e;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color: var(--text); }
+#game { position: fixed; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; }
+.hidden { display: none !important; }
+#status { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+/* --- HUD --- */
+#hud { position: fixed; inset: 0; pointer-events: none; z-index: 5; }
+#hud-topleft { position: absolute; top: 14px; left: 14px; width: 300px; }
+#health-row { display: flex; align-items: center; gap: 8px; }
+.hud-label { font-weight: 800; letter-spacing: 1px; font-size: 13px; color: var(--gold); }
+.bar { flex: 1; height: 12px; background: var(--panel); border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
+.bar.armor { flex: 0.6; height: 8px; }
+#health-fill { height: 100%; width: 100%; background: linear-gradient(90deg, #ff5e8a, #ff9a56); transition: width 0.2s; }
+#armor-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #2ec4b6, #7fd1c0); transition: width 0.2s; }
+#money-row { margin-top: 6px; font-size: 20px; font-weight: 800; color: #7cf29c; text-shadow: 0 1px 4px #000; }
+#money-row #coins { font-size: 13px; color: var(--gold); margin-left: 10px; }
+#mission-box { margin-top: 10px; background: var(--panel); border: 1px solid var(--line); border-left: 4px solid var(--gold); border-radius: 6px; padding: 8px 10px; }
+#mission-title { font-weight: 800; font-size: 14px; letter-spacing: 0.5px; color: var(--gold); }
+#mission-objective { font-size: 13px; margin-top: 2px; }
+#mission-dist { font-size: 12px; color: var(--muted); margin-top: 2px; }
+#hud-topcenter { position: absolute; top: 12px; left: 50%; transform: translateX(-50%); }
+#compass { background: var(--panel); border: 1px solid var(--line); border-radius: 20px; padding: 5px 14px; font-size: 13px; font-weight: 700; letter-spacing: 2px; }
+#compass-arrow { color: var(--gold); margin-left: 8px; }
+#hud-topright { position: absolute; top: 14px; right: 14px; text-align: right; }
+#wanted { font-size: 22px; letter-spacing: 3px; line-height: 1; text-shadow: 0 0 8px rgba(0,0,0,0.8); }
+#wanted .star { color: rgba(255,255,255,0.22); }
+#wanted .star.on { color: #ffd23f; text-shadow: 0 0 10px #ff9a56; }
+#clock { font-size: 16px; font-weight: 700; margin-top: 4px; text-shadow: 0 1px 4px #000; }
+#speed { font-size: 26px; font-weight: 800; margin-top: 2px; text-shadow: 0 1px 4px #000; }
+#speed small { font-size: 12px; font-weight: 600; color: var(--muted); }
+#weapon { font-size: 13px; font-weight: 700; color: var(--teal); margin-top: 2px; text-shadow: 0 1px 4px #000; }
+#hud-bottomleft { position: absolute; left: 14px; bottom: 14px; max-width: 420px; }
+#hint { font-size: 15px; font-weight: 700; background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 7px 10px; display: none; }
+#hint.show { display: inline-block; }
+#controls-hint { margin-top: 8px; font-size: 11px; color: var(--muted); text-shadow: 0 1px 3px #000; }
+#minimap { position: absolute; right: 14px; bottom: 14px; width: 200px; height: 200px; border: 2px solid rgba(255,196,107,0.55); border-radius: 50%; background: #10182a; box-shadow: 0 0 0 4px rgba(0,0,0,0.35), 0 4px 18px rgba(0,0,0,0.5); }
+#crosshair { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); font-size: 26px; font-weight: 300; color: rgba(255,255,255,0.9); text-shadow: 0 0 6px #000; }
+#banner { position: absolute; left: 50%; top: 22%; transform: translateX(-50%); font-size: 34px; font-weight: 900; letter-spacing: 3px; color: var(--gold); text-shadow: 0 2px 0 #7a2d12, 0 0 24px rgba(255,154,86,0.7); white-space: nowrap; }
+#message { position: absolute; left: 50%; top: 32%; transform: translateX(-50%); max-width: 640px; text-align: center; font-size: 16px; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 12px 18px; line-height: 1.5; }
+#damage-vignette { position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity 0.15s; background: radial-gradient(ellipse at center, transparent 55%, rgba(255,0,30,0.55) 100%); }
+
+/* --- Title / pause / end screens --- */
+#title-screen, #pause-screen, #end-screen { position: fixed; inset: 0; z-index: 10; display: flex; align-items: center; justify-content: center; background: linear-gradient(160deg, rgba(26,8,32,0.88), rgba(64,16,8,0.82) 55%, rgba(10,20,40,0.88)); }
+#title-inner, #pause-inner, #end-inner { max-width: 620px; padding: 28px 34px; text-align: center; }
+#title-kicker { letter-spacing: 4px; font-size: 12px; color: var(--teal); font-weight: 700; }
+#title-main { margin: 8px 0 0; font-size: 84px; line-height: 0.9; font-weight: 900; letter-spacing: 2px; background: linear-gradient(180deg, #ffe9a8, #ff9a56 55%, #ff5e8a); -webkit-background-clip: text; background-clip: text; color: transparent; text-shadow: 0 4px 30px rgba(255,94,138,0.35); }
+#title-sub { margin-top: 6px; font-size: 22px; font-weight: 800; letter-spacing: 8px; color: var(--gold); }
+#title-story { margin: 18px auto 0; max-width: 520px; font-size: 15px; line-height: 1.6; color: #efe9dc; }
+#title-buttons { margin-top: 24px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+.title-btn { pointer-events: auto; cursor: pointer; font: inherit; font-weight: 800; letter-spacing: 1px; font-size: 14px; color: var(--text); background: rgba(255,255,255,0.08); border: 1px solid var(--line); border-radius: 8px; padding: 12px 20px; }
+.title-btn:hover { background: rgba(255,255,255,0.18); }
+.title-btn.primary { background: linear-gradient(90deg, #ff5e8a, #ff9a56); color: #1a0f1e; border-color: transparent; }
+.title-btn.primary:hover { filter: brightness(1.12); }
+#howto { margin-top: 18px; text-align: left; font-size: 13px; line-height: 1.6; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 12px 16px; }
+#howto p { margin: 6px 0; }
+#title-foot { margin-top: 20px; font-size: 11px; color: var(--muted); }
+#pause-inner h2, #end-inner h2 { font-size: 44px; margin: 0 0 10px; letter-spacing: 4px; color: var(--gold); }
+#pause-stats { font-size: 14px; line-height: 1.8; color: var(--muted); margin-bottom: 18px; }
+#end-text { font-size: 15px; line-height: 1.6; }
+@media (max-width: 760px) {
+  #title-main { font-size: 54px; }
+  #minimap { width: 140px; height: 140px; }
+  #hud-topleft { width: 220px; }
+  #mission-box { font-size: 12px; }
+  #controls-hint { display: none; }
+}
